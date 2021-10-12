@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:todo_app/utils/utils.dart';
 
-class CreateTodoView extends StatelessWidget {
-  CreateTodoView({Key? key}) : super(key: key);
+class CreateTodoView extends StatefulWidget {
+  const CreateTodoView({Key? key}) : super(key: key);
 
+  @override
+  State<CreateTodoView> createState() => _CreateTodoViewState();
+}
+
+class _CreateTodoViewState extends State<CreateTodoView> {
   final TextEditingController _titleController = TextEditingController();
+
   final TextEditingController _descController = TextEditingController();
+
   final TextEditingController _dateController = TextEditingController();
+
   final TextEditingController _timeController = TextEditingController();
+
+  final GlobalKey<FormState> _formKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -15,12 +27,18 @@ class CreateTodoView extends StatelessWidget {
         title: const Text("Create new Task"),
       ),
       body: Form(
+        key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
             TextFormField(
               controller: _titleController,
               keyboardType: TextInputType.text,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return "please enter title";
+                }
+              },
               textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(
                   label: const Text("Title"),
@@ -35,6 +53,11 @@ class CreateTodoView extends StatelessWidget {
               controller: _descController,
               keyboardType: TextInputType.multiline,
               textCapitalization: TextCapitalization.sentences,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return "please enter description";
+                }
+              },
               decoration: InputDecoration(
                   label: const Text("Description"),
                   hintText: "enter description here",
@@ -50,11 +73,21 @@ class CreateTodoView extends StatelessWidget {
                   child: TextFormField(
                     onTap: () {
                       showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate:
-                              DateTime.now().add(const Duration(days: 365)));
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                      ).then((value) {
+                        setState(() {
+                          _dateController.text =
+                              DateFormat.yMMMd().format(value!);
+                        });
+                      });
+                    },
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "please select date";
+                      }
                     },
                     controller: _dateController,
                     keyboardType: TextInputType.multiline,
@@ -73,7 +106,15 @@ class CreateTodoView extends StatelessWidget {
                   child: TextFormField(
                     onTap: () {
                       showTimePicker(
-                          context: context, initialTime: TimeOfDay.now());
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      ).then((value) =>
+                          _timeController.text = value!.format(context));
+                    },
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "please select time";
+                      }
                     },
                     controller: _timeController,
                     keyboardType: TextInputType.multiline,
@@ -86,6 +127,28 @@ class CreateTodoView extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                  backgroundColor: customBlue,
+                  padding: const EdgeInsets.all(15)),
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  print(_titleController.text);
+                  print(_descController.text);
+                  print(_dateController.text);
+                  print(_timeController.text);
+                } else {
+                  print("please enter data");
+                }
+              },
+              child: const Text(
+                "Create Todo",
+                style: TextStyle(color: Colors.white),
+              ),
             )
           ],
         ),
