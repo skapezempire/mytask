@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:todo_app/shared_widgets/todo_tile.dart';
 import 'package:todo_app/utils/utils.dart';
+import 'package:todo_app/views/create_todo_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({Key? key}) : super(key: key);
@@ -34,7 +37,9 @@ class _HomeViewState extends State<HomeView> {
         shrinkWrap: true,
         padding: const EdgeInsets.all(15),
         itemBuilder: (context, index) {
-          return const TodoTileWidget();
+          return const TodoTileWidget(
+            status: false,
+          );
         },
         separatorBuilder: (context, index) {
           return const SizedBox(
@@ -44,19 +49,20 @@ class _HomeViewState extends State<HomeView> {
         itemCount: 10,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+            return CreateTodoView();
+          }));
+        },
         child: Icon(Icons.add),
       ),
       bottomNavigationBar: SafeArea(
         child: InkWell(
           onTap: () {
-            showModalBottomSheet(
-                shape: const RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(20))),
+            showBarModalBottomSheet(
                 context: context,
                 builder: (context) {
-                  return ListView();
+                  return CompletedTodoWidget();
                 });
           },
           child: Container(
@@ -72,7 +78,7 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.check_circle,
                       color: customBlue,
                     ),
@@ -106,46 +112,27 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-class TodoTileWidget extends StatelessWidget {
-  const TodoTileWidget({
+class CompletedTodoWidget extends StatelessWidget {
+  const CompletedTodoWidget({
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      // color: Colors.green,
-      shadowColor: Theme.of(context).shadowColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15),
-        child: ListTile(
-          leading: Icon(
-            Icons.check_circle_outline,
-            color: dateColor(date: "Today"),
-            size: 30,
-          ),
-          title: Text(
-            "Plan the trip to finland",
-            style:
-                Theme.of(context).textTheme.bodyText1!.copyWith(fontSize: 20.0),
-          ),
-          subtitle: const Text("The family\'s trip to Finland next summer"),
-          trailing: TextButton.icon(
-            onPressed: null,
-            icon: Icon(
-              Icons.notifications,
-              color: dateColor(date: "Yesterday"),
-            ),
-            label: Text(
-              "Yesterday",
-              style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                    color: dateColor(date: "Yesterday"),
-                  ),
-            ),
-          ),
-        ),
-      ),
+    return ListView.separated(
+      shrinkWrap: true,
+      padding: const EdgeInsets.all(15),
+      itemBuilder: (context, index) {
+        return const TodoTileWidget(
+          status: true,
+        );
+      },
+      separatorBuilder: (context, index) {
+        return const SizedBox(
+          height: 10,
+        );
+      },
+      itemCount: 10,
     );
   }
 }
